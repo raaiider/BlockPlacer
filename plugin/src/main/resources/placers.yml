@@ -1,0 +1,10 @@
+placers:
+  placer1:
+    material: STONE
+    mode: HORIZONTAL
+    trigger: PLACE
+    inverted: false
+    onlyInAir: true
+    beforeBlocks: false
+    maxPlaced: 5
+    waitTicks: 40
