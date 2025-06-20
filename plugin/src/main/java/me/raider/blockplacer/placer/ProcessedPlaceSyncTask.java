@@ -1,10 +1,11 @@
 package me.raider.blockplacer.placer;
 
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ProcessedPlaceSyncTask implements Runnable {
 
     private final PlacerManager placerManager;
+    private final int maxPerTick = 100;
 
     public ProcessedPlaceSyncTask(PlacerManager placerManager) {
         this.placerManager = placerManager;
@@ -12,16 +13,14 @@ public class ProcessedPlaceSyncTask implements Runnable {
 
     @Override
     public void run() {
-        int syncTick = placerManager.getSyncTick();
-        int asyncTick = placerManager.getAsyncTick().get();
-        if (syncTick <= asyncTick) {
-            List<ProcessedPlace> placings = placerManager.getTickBuffer().remove(syncTick);
-            if (placings != null) {
-                for (ProcessedPlace placing : placings) {
-                    placing.getLocation().getBlock().setType(placing.getMaterial());
-                }
+        int placed = 0;
+        ConcurrentLinkedQueue<ProcessedPlace> placedQueue = placerManager.getQueue();
+        while (!placedQueue.isEmpty() && placed < maxPerTick) {
+            ProcessedPlace place = placedQueue.poll(); // gets and removes the head
+            if (place != null) {
+                place.getLocation().getBlock().setType(place.getMaterial());
+                placed++;
             }
-            placerManager.incrementSyncTick();
         }
     }
 }

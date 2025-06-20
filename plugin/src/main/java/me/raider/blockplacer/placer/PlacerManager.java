@@ -9,14 +9,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PlacerManager {
 
-    private final Map<Integer, List<ProcessedPlace>> tickBuffer = new ConcurrentHashMap<>();
-    private final AtomicInteger asyncTick = new AtomicInteger(0);
-    private int syncTick = 0;
+    private final ConcurrentLinkedQueue<ProcessedPlace> queue = new ConcurrentLinkedQueue<>();
 
     private final Map<String, Placer> placers = new HashMap<>();
     private final Set<PlacerInstance> instances = new HashSet<>();
@@ -47,11 +44,9 @@ public class PlacerManager {
     public void clearManager() {
         asyncTask.cancel();
         syncTask.cancel();
-        asyncTick.set(0);
-        tickBuffer.clear();
+        queue.clear();
         placers.clear();
         instances.clear();
-        this.syncTick = 0;
     }
 
     public void reloadPlacers() {
@@ -78,25 +73,8 @@ public class PlacerManager {
         return this.instances;
     }
 
-    public AtomicInteger getAsyncTick() {
-        return this.asyncTick;
-    }
-
-    public int incrementAsyncTick() {
-        return asyncTick.getAndIncrement();
-    }
-
-
-    public Map<Integer, List<ProcessedPlace>> getTickBuffer() {
-        return this.tickBuffer;
-    }
-
-    public int getSyncTick() {
-        return this.syncTick;
-    }
-
-    public void incrementSyncTick() {
-        this.syncTick++;
+    public ConcurrentLinkedQueue<ProcessedPlace> getQueue() {
+        return this.queue;
     }
 
     public Placer getPlacer(String placerId) {

@@ -15,7 +15,6 @@ public class PlacerLogicAsyncTask implements Runnable {
 
     @Override
     public void run() {
-        int tick = placerManager.getAsyncTick().incrementAndGet();
         List<ProcessedPlace> placings = new ArrayList<>();
         List<PlacerInstance> toRemove = new ArrayList<>();
         for (PlacerInstance instance : placerManager.getInstances()) {
@@ -33,6 +32,8 @@ public class PlacerLogicAsyncTask implements Runnable {
             placerManager.getInstances().remove(instance);
         }
 
-        placerManager.getTickBuffer().put(tick, placings);
+        for (ProcessedPlace place : placings) {
+            placerManager.getQueue().add(place);
+        }
     }
 }
