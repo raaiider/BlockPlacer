@@ -6,6 +6,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.util.Vector;
+
+import java.util.Map;
+
 
 public class Utils {
 
@@ -28,25 +32,22 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
+    private static final Map<BlockFace, Vector> FACE_TO_VECTOR = Map.of(
+            BlockFace.UP, new Vector(0, -1, 0),
+            BlockFace.DOWN, new Vector(0, 1, 0),
+            BlockFace.NORTH, new Vector(0, 0, 1),
+            BlockFace.SOUTH, new Vector(0, 0, -1),
+            BlockFace.EAST, new Vector(-1, 0, 0),
+            BlockFace.WEST, new Vector(1, 0, 0)
+    );
+
     public static ProcessResult processNextLocationForcedSync(Placer placer, Location location) {
         return processNextLocationForcedSync(location, placer.getForcedFace());
     }
 
     public static ProcessResult processNextLocationForcedSync(Location location, BlockFace face) {
-        if (face == BlockFace.DOWN) {
-            return getResultFromLocation(location.add(0, -1, 0));
-        } else if (face == BlockFace.UP) {
-            return getResultFromLocation(location.add(0, 1, 0));
-        } else if (face == BlockFace.NORTH) {
-            return getResultFromLocation(location.add(0, 0, 1));
-        } else if (face == BlockFace.SOUTH) {
-            return getResultFromLocation(location.add(0, 0, -1));
-        } else if (face == BlockFace.EAST) {
-            return getResultFromLocation(location.add(-1, 0, 0));
-        } else if (face == BlockFace.WEST) {
-            return getResultFromLocation(location.add(1, 0, 0));
-        }
-        return getResultFromLocation(location);
+        Vector offset = FACE_TO_VECTOR.getOrDefault(face, new Vector(0, 0, 0));
+        return getResultFromLocation(location.add(offset));
     }
 
     public static Location processNextLocationForcedAsync(Placer placer, Location location) {
@@ -54,114 +55,45 @@ public class Utils {
     }
 
     public static Location processNextLocationForcedAsync(Location location, BlockFace face) {
-        if (face == BlockFace.DOWN) {
-            return location.add(0, -1, 0);
-        } else if (face == BlockFace.UP) {
-            return location.add(0, 1, 0);
-        } else if (face == BlockFace.NORTH) {
-            return location.add(0, 0, 1);
-        } else if (face == BlockFace.SOUTH) {
-            return location.add(0, 0, -1);
-        } else if (face == BlockFace.EAST) {
-            return location.add(-1, 0, 0);
-        } else if (face == BlockFace.WEST) {
-            return location.add(1, 0, 0);
-        }
-        return location;
+        Vector offset = FACE_TO_VECTOR.getOrDefault(face, new Vector(0, 0, 0));
+        return location.add(offset);
     }
 
-    public static ProcessResult processNextLocationSync(Placer attachedPlacer, Location clonedLoc, BlockFace face) {
-        if (face == BlockFace.UP) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.VERTICAL) {
-                return getResultFromLocation(clonedLoc.add(0, inverted, 0));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        } else if (face == BlockFace.DOWN) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.VERTICAL) {
-                return getResultFromLocation(clonedLoc.add(0, inverted, 0));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        } else if (face == BlockFace.WEST) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return getResultFromLocation(clonedLoc.add(inverted, 0, 0));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        } else if (face == BlockFace.EAST) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return getResultFromLocation(clonedLoc.add(inverted, 0, 0));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        } else if (face == BlockFace.NORTH) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return getResultFromLocation(clonedLoc.add(0, 0, inverted));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        } else if (face == BlockFace.SOUTH) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return getResultFromLocation(clonedLoc.add(0, 0, inverted));
-            } else {
-                return getResultFromLocation(clonedLoc);
-            }
-        }
-        return getResultFromLocation(clonedLoc);
+    public static ProcessResult processNextLocationSync(Placer placer, Location location, BlockFace face) {
+        return getResultFromLocation(offsetByPlacer(placer, location, face));
     }
 
-    public static Location processNextLocationAsync(Placer attachedPlacer, Location clonedLoc, BlockFace face) {
-        if (face == BlockFace.UP) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.VERTICAL) {
-                return clonedLoc.add(0, inverted, 0);
-            } else {
-                return clonedLoc;
-            }
-        } else if (face == BlockFace.DOWN) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.VERTICAL) {
-                return clonedLoc.add(0, inverted, 0);
-            } else {
-                return clonedLoc;
-            }
-        } else if (face == BlockFace.WEST) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return clonedLoc.add(inverted, 0, 0);
-            } else {
-                return clonedLoc;
-            }
-        } else if (face == BlockFace.EAST) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return clonedLoc.add(inverted, 0, 0);
-            } else {
-                return clonedLoc;
-            }
-        } else if (face == BlockFace.NORTH) {
-            int inverted = attachedPlacer.isInverted() ? -1 : 1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return clonedLoc.add(0, 0, inverted);
-            } else {
-                return clonedLoc;
-            }
-        } else if (face == BlockFace.SOUTH) {
-            int inverted = attachedPlacer.isInverted() ? 1 : -1;
-            if (attachedPlacer.getMode() == PlacerMode.HORIZONTAL) {
-                return clonedLoc.add(0, 0, inverted);
-            } else {
-                return clonedLoc;
-            }
+    public static Location processNextLocationAsync(Placer placer, Location location, BlockFace face) {
+        return offsetByPlacer(placer, location, face);
+    }
+
+    private static Location offsetByPlacer(Placer placer, Location location, BlockFace face) {
+        int dx = 0, dy = 0, dz = 0;
+
+        switch (face) {
+            case UP:
+            case DOWN:
+                if (placer.getMode() == PlacerMode.VERTICAL) {
+                    dy = placer.isInverted() ? (face == BlockFace.UP ? 1 : -1) : (face == BlockFace.UP ? -1 : 1);
+                }
+                break;
+            case EAST:
+            case WEST:
+                if (placer.getMode() == PlacerMode.HORIZONTAL) {
+                    dx = placer.isInverted() ? (face == BlockFace.EAST ? 1 : -1) : (face == BlockFace.EAST ? -1 : 1);
+                }
+                break;
+            case NORTH:
+            case SOUTH:
+                if (placer.getMode() == PlacerMode.HORIZONTAL) {
+                    dz = placer.isInverted() ? (face == BlockFace.SOUTH ? 1 : -1) : (face == BlockFace.SOUTH ? -1 : 1);
+                }
+                break;
+            default:
+                break;
         }
-        return clonedLoc;
+
+        return location.add(dx, dy, dz);
     }
 
     private static ProcessResult getResultFromLocation(Location location) {

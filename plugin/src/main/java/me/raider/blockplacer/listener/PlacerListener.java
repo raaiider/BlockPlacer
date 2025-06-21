@@ -72,6 +72,7 @@ public class PlacerListener implements Listener {
                 Utils.ProcessResult result;
                 if (placer.getForcedFace() != BlockFace.SELF) {
                     if (i == 0) {
+                        Bukkit.getConsoleSender().sendMessage(face.toString());
                         result = Utils.processNextLocationForcedSync(clonedLoc, face);
                     } else {
                         result = Utils.processNextLocationForcedSync(placer, clonedLoc);
@@ -80,7 +81,8 @@ public class PlacerListener implements Listener {
                     result = Utils.processNextLocationSync(placer, clonedLoc, face);
                 }
 
-                if (result.getLocation().equals(clickedBlock.getLocation())) {
+                if (result.getLocation().equals(clickedBlock.getLocation()) && i == 0) {
+                    Bukkit.getConsoleSender().sendMessage(clickedBlock.getLocation().toString());
                     player.sendMessage(plugin.getConfigFile().getMessage("messages.wrong-orientation", "Placer set in wrong orientation!"));
                     event.setCancelled(true);
                     return;
