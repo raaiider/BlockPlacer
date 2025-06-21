@@ -50,7 +50,7 @@ public class PlacerInstance {
             Location result;
             if (this.attachedPlacer.getForcedFace() != BlockFace.SELF) {
                 if (this.blocksPlaced == 0) {
-                    result = Utils.processNextLocationForcedAsync(this.actualLoc, this.face);
+                    result = Utils.processActualNextLocationForcedAsync(this.actualLoc, this.face);
                 } else {
                     result = Utils.processNextLocationForcedAsync(attachedPlacer, this.actualLoc);
                 }

@@ -32,13 +32,22 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
-    private static final Map<BlockFace, Vector> FACE_TO_VECTOR = Map.of(
+    private static final Map<BlockFace, Vector> ACTUAL_FACE_TO_VECTOR = Map.of(
             BlockFace.UP, new Vector(0, -1, 0),
             BlockFace.DOWN, new Vector(0, 1, 0),
             BlockFace.NORTH, new Vector(0, 0, 1),
             BlockFace.SOUTH, new Vector(0, 0, -1),
             BlockFace.EAST, new Vector(-1, 0, 0),
             BlockFace.WEST, new Vector(1, 0, 0)
+    );
+
+    private static final Map<BlockFace, Vector> FACE_TO_VECTOR = Map.of(
+            BlockFace.UP, new Vector(0, 1, 0),
+            BlockFace.DOWN, new Vector(0, -1, 0),
+            BlockFace.NORTH, new Vector(0, 0, -1),
+            BlockFace.SOUTH, new Vector(0, 0, 1),
+            BlockFace.EAST, new Vector(1, 0, 0),
+            BlockFace.WEST, new Vector(-1, 0, 0)
     );
 
     public static ProcessResult processNextLocationForcedSync(Placer placer, Location location) {
@@ -50,12 +59,22 @@ public class Utils {
         return getResultFromLocation(location.add(offset));
     }
 
+    public static ProcessResult processActualNextLocationForcedSync(Location location, BlockFace face) {
+        Vector offset = ACTUAL_FACE_TO_VECTOR.getOrDefault(face, new Vector(0, 0, 0));
+        return getResultFromLocation(location.add(offset));
+    }
+
     public static Location processNextLocationForcedAsync(Placer placer, Location location) {
         return processNextLocationForcedAsync(location, placer.getForcedFace());
     }
 
     public static Location processNextLocationForcedAsync(Location location, BlockFace face) {
         Vector offset = FACE_TO_VECTOR.getOrDefault(face, new Vector(0, 0, 0));
+        return location.add(offset);
+    }
+
+    public static Location processActualNextLocationForcedAsync(Location location, BlockFace face) {
+        Vector offset = ACTUAL_FACE_TO_VECTOR.getOrDefault(face, new Vector(0, 0, 0));
         return location.add(offset);
     }
 

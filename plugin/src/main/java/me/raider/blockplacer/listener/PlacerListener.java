@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -73,7 +74,7 @@ public class PlacerListener implements Listener {
                 if (placer.getForcedFace() != BlockFace.SELF) {
                     if (i == 0) {
                         Bukkit.getConsoleSender().sendMessage(face.toString());
-                        result = Utils.processNextLocationForcedSync(clonedLoc, face);
+                        result = Utils.processActualNextLocationForcedSync(clonedLoc, face);
                     } else {
                         result = Utils.processNextLocationForcedSync(placer, clonedLoc);
                     }
@@ -102,6 +103,10 @@ public class PlacerListener implements Listener {
             player.sendMessage(plugin.getConfigFile().getMessage("messages.placed-placer", "You placed a placer!"));
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onItemInteract(PlayerInteractEvent event) {
 
     }
 
