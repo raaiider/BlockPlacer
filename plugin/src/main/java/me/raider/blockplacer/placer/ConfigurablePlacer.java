@@ -4,6 +4,7 @@ import me.raider.blockplacer.file.YmlFile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -12,7 +13,7 @@ public class ConfigurablePlacer implements Placer {
     private final String placerName;
     private final Material material;
     private ItemStack item;
-    private final PlacerMode mode;
+    private PlacerMode mode;
     private final boolean inverted;
     private final int waitTicks;
     private final int maxPlaced;
@@ -20,6 +21,7 @@ public class ConfigurablePlacer implements Placer {
     private final boolean onlyInAir;
     private final boolean beforeBlocks;
     private final YmlFile ymlFile;
+    private final BlockFace forcedFace;
 
     public ConfigurablePlacer(YmlFile placerFile, String placerUniqueName) {
         this.ymlFile = placerFile;
@@ -54,6 +56,14 @@ public class ConfigurablePlacer implements Placer {
             this.triggerType = PlacerTriggerType.PLACE;
         }
 
+        String faceStr = placerFile.getString("placers." + placerUniqueName + ".forcedFace");
+        if (faceStr != null) {
+            this.forcedFace = BlockFace.valueOf(faceStr);
+        } else {
+            this.forcedFace = BlockFace.SELF;
+        }
+
+
         this.inverted = placerFile.getBoolean("placers." + placerUniqueName + ".inverted");
         this.onlyInAir = placerFile.getBoolean("placers." + placerUniqueName + ".onlyInAir");
         this.beforeBlocks = placerFile.getBoolean("placers." + placerUniqueName + ".beforeBlocks");
@@ -80,6 +90,11 @@ public class ConfigurablePlacer implements Placer {
     @Override
     public PlacerMode getMode() {
         return mode;
+    }
+
+    @Override
+    public void setMode(PlacerMode mode) {
+        this.mode = mode;
     }
 
     @Override
@@ -110,6 +125,11 @@ public class ConfigurablePlacer implements Placer {
     @Override
     public boolean isBeforeBlocks() {
         return this.beforeBlocks;
+    }
+
+    @Override
+    public BlockFace getForcedFace() {
+        return this.forcedFace;
     }
 
     public void setItem(ItemStack item) {

@@ -47,7 +47,16 @@ public class PlacerInstance {
         }
         this.tick();
         if (this.shouldRender()) {
-            Location result = Utils.processNextLocationAsync(attachedPlacer, this.actualLoc, face);
+            Location result;
+            if (this.attachedPlacer.getForcedFace() != BlockFace.SELF) {
+                if (this.blocksPlaced == 0) {
+                    result = Utils.processNextLocationForcedAsync(this.actualLoc, this.face);
+                } else {
+                    result = Utils.processNextLocationForcedAsync(attachedPlacer, this.actualLoc);
+                }
+            } else {
+                result = Utils.processNextLocationAsync(attachedPlacer, this.actualLoc, face);
+            }
             Boolean air = airBlocks.get(this.blocksPlaced);
             // System.out.println("to be placed " + this.blocksPlaced);
             if (air != null) {

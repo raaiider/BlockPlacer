@@ -1,6 +1,7 @@
 package me.raider.blockplacer.placer;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 
 public interface Placer {
@@ -13,6 +14,8 @@ public interface Placer {
 
     PlacerMode getMode();
 
+    void setMode(PlacerMode mode);
+
     boolean isInverted();
 
     int getWaitTicks();
@@ -24,6 +27,8 @@ public interface Placer {
     boolean isOnlyInAir();
 
     boolean isBeforeBlocks();
+
+    BlockFace getForcedFace();
 
     // boolean hasGravity();
 

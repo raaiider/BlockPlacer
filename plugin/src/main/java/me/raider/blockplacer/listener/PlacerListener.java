@@ -4,6 +4,7 @@ import me.raider.blockplacer.BlockPlacerPlugin;
 import me.raider.blockplacer.Utils;
 import me.raider.blockplacer.placer.Placer;
 import me.raider.blockplacer.placer.PlacerManager;
+import me.raider.blockplacer.placer.PlacerMode;
 import me.raider.blockplacer.placer.PlacerTriggerType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -68,7 +69,17 @@ public class PlacerListener implements Listener {
             Location clonedLoc = actualLoc.clone();
 
             for (int i = 0 ; i < placer.getMaxPlaced() ; i++) {
-                Utils.ProcessResult result = Utils.processNextLocationSync(placer, clonedLoc, face);
+                Utils.ProcessResult result;
+                if (placer.getForcedFace() != BlockFace.SELF) {
+                    if (i == 0) {
+                        result = Utils.processNextLocationForcedSync(clonedLoc, face);
+                    } else {
+                        result = Utils.processNextLocationForcedSync(placer, clonedLoc);
+                    }
+                } else {
+                    result = Utils.processNextLocationSync(placer, clonedLoc, face);
+                }
+
                 if (result.getLocation().equals(clickedBlock.getLocation())) {
                     player.sendMessage(plugin.getConfigFile().getMessage("messages.wrong-orientation", "Placer set in wrong orientation!"));
                     event.setCancelled(true);
@@ -79,6 +90,10 @@ public class PlacerListener implements Listener {
                 } else {
                     airBlocks.add(result.isAir());
                 }
+                clonedLoc = result.getLocation();
+            }
+            for (Boolean b : airBlocks) {
+                Bukkit.getConsoleSender().sendMessage(b + " blocks");
             }
 
             placerManager.addPlacerInstance(actualLoc.clone(), face, placerId, airBlocks);

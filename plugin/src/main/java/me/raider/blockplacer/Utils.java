@@ -28,6 +28,47 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
+    public static ProcessResult processNextLocationForcedSync(Placer placer, Location location) {
+        return processNextLocationForcedSync(location, placer.getForcedFace());
+    }
+
+    public static ProcessResult processNextLocationForcedSync(Location location, BlockFace face) {
+        if (face == BlockFace.DOWN) {
+            return getResultFromLocation(location.add(0, -1, 0));
+        } else if (face == BlockFace.UP) {
+            return getResultFromLocation(location.add(0, 1, 0));
+        } else if (face == BlockFace.NORTH) {
+            return getResultFromLocation(location.add(0, 0, 1));
+        } else if (face == BlockFace.SOUTH) {
+            return getResultFromLocation(location.add(0, 0, -1));
+        } else if (face == BlockFace.EAST) {
+            return getResultFromLocation(location.add(-1, 0, 0));
+        } else if (face == BlockFace.WEST) {
+            return getResultFromLocation(location.add(1, 0, 0));
+        }
+        return getResultFromLocation(location);
+    }
+
+    public static Location processNextLocationForcedAsync(Placer placer, Location location) {
+        return processNextLocationForcedAsync(location, placer.getForcedFace());
+    }
+
+    public static Location processNextLocationForcedAsync(Location location, BlockFace face) {
+        if (face == BlockFace.DOWN) {
+            return location.add(0, -1, 0);
+        } else if (face == BlockFace.UP) {
+            return location.add(0, 1, 0);
+        } else if (face == BlockFace.NORTH) {
+            return location.add(0, 0, 1);
+        } else if (face == BlockFace.SOUTH) {
+            return location.add(0, 0, -1);
+        } else if (face == BlockFace.EAST) {
+            return location.add(-1, 0, 0);
+        } else if (face == BlockFace.WEST) {
+            return location.add(1, 0, 0);
+        }
+        return location;
+    }
 
     public static ProcessResult processNextLocationSync(Placer attachedPlacer, Location clonedLoc, BlockFace face) {
         if (face == BlockFace.UP) {
