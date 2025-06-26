@@ -2,3 +2,5 @@ name: BlockPlacer
 version: 1.0
 main: me.raider.blockplacer.BlockPlacerPlugin
 api-version: 1.21
+softdepend:
+  - Vault

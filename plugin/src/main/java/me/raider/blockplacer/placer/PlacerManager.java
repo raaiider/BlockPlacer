@@ -1,11 +1,13 @@
 package me.raider.blockplacer.placer;
 
 import me.raider.blockplacer.BlockPlacerPlugin;
+import me.raider.blockplacer.addon.*;
 import me.raider.blockplacer.file.YmlFile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
@@ -18,6 +20,8 @@ public class PlacerManager {
     private final Map<String, Placer> placers = new HashMap<>();
     private final Set<PlacerInstance> instances = new HashSet<>();
 
+    private final AddonManager addonManager;
+
     private final YmlFile placersFile;
     private final BlockPlacerPlugin plugin;
 
@@ -25,6 +29,7 @@ public class PlacerManager {
     private BukkitTask syncTask;
 
     public PlacerManager(YmlFile placersFile, BlockPlacerPlugin plugin) {
+        this.addonManager = new AddonManager(plugin);
         this.placersFile = placersFile;
         this.plugin = plugin;
     }
@@ -37,7 +42,7 @@ public class PlacerManager {
         }
 
         for (String key : section.getKeys(false)) {
-            placers.put(key, new ConfigurablePlacer(this.placersFile, key));
+            placers.put(key, new ConfigurablePlacer(this.placersFile, this.addonManager, key));
         }
     }
 
@@ -56,17 +61,32 @@ public class PlacerManager {
         startTasks();
     }
 
-    public void addPlacerInstance(Location location, BlockFace face, String placerId, List<Boolean> airBlocks) {
+    public PlacerInstance addPlacerInstance(Location location, BlockFace face, String placerId, List<Boolean> airBlocks, Player player) {
         if (location == null || placerId == null) {
             plugin.getLogger().warning("Tried to add an invalid place");
-            return;
+            return null;
         }
         Placer placer = placers.get(placerId);
         if (placer == null) {
             plugin.getLogger().warning("The placer with name " + placerId + " was not found, please check the config.");
-            return;
+            return null;
         }
-        this.instances.add(new PlacerInstance(placer, location, face, airBlocks));
+        PlacerInstance instance = new PlacerInstance(placer, location, face, airBlocks, player);
+        this.instances.add(instance);
+        return instance;
+    }
+
+    public void executeStartConditions(PlacerInstance instance, Player player) {
+        AddonExecutionResult result = addonManager.executeAddonInPlacer(AddonPhase.START, instance, player);
+        for (Boolean res : result.getBooleanResults()) {
+            if (!res) {
+                instances.remove(instance);
+                return;
+            }
+        }
+        for (Addon<NullExecution> voidRes : result.getVoidReturn()) {
+            voidRes.execute(new AddonContext(player, instance));
+        }
     }
 
     public Set<PlacerInstance> getInstances() {
@@ -85,6 +105,5 @@ public class PlacerManager {
         this.asyncTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new PlacerLogicAsyncTask(this), 0L, 1L);
         this.syncTask = Bukkit.getScheduler().runTaskTimer(plugin, new ProcessedPlaceSyncTask(this), 0L, 1L);
     }
-
 
 }

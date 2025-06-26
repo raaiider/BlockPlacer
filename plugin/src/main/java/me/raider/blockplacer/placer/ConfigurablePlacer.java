@@ -1,12 +1,21 @@
 package me.raider.blockplacer.placer;
 
+import me.raider.blockplacer.addon.Addon;
+import me.raider.blockplacer.addon.AddonManager;
+import me.raider.blockplacer.addon.AddonPhase;
 import me.raider.blockplacer.file.YmlFile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ConfigurablePlacer implements Placer {
 
@@ -22,8 +31,9 @@ public class ConfigurablePlacer implements Placer {
     private final boolean beforeBlocks;
     private final YmlFile ymlFile;
     private final BlockFace forcedFace;
+    private final Map<AddonPhase, List<Addon<?>>> addons;
 
-    public ConfigurablePlacer(YmlFile placerFile, String placerUniqueName) {
+    public ConfigurablePlacer(YmlFile placerFile, AddonManager addonManager, String placerUniqueName) {
         this.ymlFile = placerFile;
         this.placerName = placerUniqueName;
         String materialStr = placerFile.getString("placers." + placerUniqueName + ".material");
@@ -62,13 +72,33 @@ public class ConfigurablePlacer implements Placer {
         } else {
             this.forcedFace = BlockFace.SELF;
         }
-
-
         this.inverted = placerFile.getBoolean("placers." + placerUniqueName + ".inverted");
         this.onlyInAir = placerFile.getBoolean("placers." + placerUniqueName + ".onlyInAir");
         this.beforeBlocks = placerFile.getBoolean("placers." + placerUniqueName + ".beforeBlocks");
         this.maxPlaced = placerFile.getInt("placers." + placerUniqueName + ".maxPlaced");
         this.waitTicks = placerFile.getInt("placers." + placerUniqueName + ".waitTicks");
+
+        this.addons = new HashMap<>();
+
+        this.addons.put(AddonPhase.START, new ArrayList<>());
+        this.addons.put(AddonPhase.ON_PLACE, new ArrayList<>());
+        this.addons.put(AddonPhase.STOP, new ArrayList<>());
+
+        ConfigurationSection addonSection = placerFile.getConfigurationSection("placers." + placerUniqueName + ".addons");
+        if (addonSection != null) {
+            for (String str : addonSection.getKeys(false)) {
+                String addonName = placerFile.getString("placers." + placerUniqueName + ".addons." + str + ".name");
+                if (addonName == null) {
+                    continue;
+                }
+                Addon<?> addon = addonManager.getAddons().get(addonName);
+                if (addon == null) {
+                    continue;
+                }
+                addon.configure(placerFile.getConfigurationSection("placers." + placerUniqueName + ".addons." + str));
+                this.addons.get(addon.getPhase()).add(addon);
+            }
+        }
     }
 
 
@@ -90,11 +120,6 @@ public class ConfigurablePlacer implements Placer {
     @Override
     public PlacerMode getMode() {
         return mode;
-    }
-
-    @Override
-    public void setMode(PlacerMode mode) {
-        this.mode = mode;
     }
 
     @Override
@@ -130,6 +155,11 @@ public class ConfigurablePlacer implements Placer {
     @Override
     public BlockFace getForcedFace() {
         return this.forcedFace;
+    }
+
+    @Override
+    public Map<AddonPhase, List<Addon<?>>> getAddons() {
+        return this.addons;
     }
 
     public void setItem(ItemStack item) {

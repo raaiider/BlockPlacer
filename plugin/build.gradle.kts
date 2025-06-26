@@ -9,10 +9,14 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+        exclude(group = "org.bukkit", module = "bukkit")
+    }
     implementation("io.github.revxrsal:lamp.common:4.0.0-rc.12")
     implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.12")
 }

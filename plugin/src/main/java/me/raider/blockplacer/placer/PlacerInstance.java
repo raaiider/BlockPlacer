@@ -4,6 +4,7 @@ import me.raider.blockplacer.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ public class PlacerInstance {
     private final Material material;
     private final BlockFace face;
     private final List<Boolean> airBlocks;
+    private final Player player;
 
     private int firstNonAir;
     private Location actualLoc;
@@ -22,10 +24,11 @@ public class PlacerInstance {
     private int actualTick;
     private int blocksPlaced;
 
-    public PlacerInstance(Placer attachedPlacer, Location initialLoc, BlockFace face, List<Boolean> airBlocks) {
+    public PlacerInstance(Placer attachedPlacer, Location initialLoc, BlockFace face, List<Boolean> airBlocks, Player player) {
         this.id = UUID.randomUUID().toString();
         this.attachedPlacer = attachedPlacer;
         this.material = attachedPlacer.getBlockToPlace();
+        this.player = player;
         // location of the block clicked
         this.airBlocks = airBlocks;
         this.actualLoc = initialLoc;
@@ -50,12 +53,12 @@ public class PlacerInstance {
             Location result;
             if (this.attachedPlacer.getForcedFace() != BlockFace.SELF) {
                 if (this.blocksPlaced == 0) {
-                    result = Utils.processActualNextLocationForcedAsync(this.actualLoc, this.face);
+                    result = PlacerUtils.processActualNextLocationForcedAsync(this.actualLoc, this.face);
                 } else {
-                    result = Utils.processNextLocationForcedAsync(attachedPlacer, this.actualLoc);
+                    result = PlacerUtils.processNextLocationForcedAsync(attachedPlacer, this.actualLoc);
                 }
             } else {
-                result = Utils.processNextLocationAsync(attachedPlacer, this.actualLoc, face);
+                result = PlacerUtils.processNextLocationAsync(attachedPlacer, this.actualLoc, face);
             }
             Boolean air = airBlocks.get(this.blocksPlaced);
             // System.out.println("to be placed " + this.blocksPlaced);
@@ -95,6 +98,18 @@ public class PlacerInstance {
 
     public Material getMaterial() {
         return this.material;
+    }
+
+    public Placer getAttachedPlacer() {
+        return attachedPlacer;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    public Location getActualLoc() {
+        return actualLoc;
     }
 
     public boolean isDone() {

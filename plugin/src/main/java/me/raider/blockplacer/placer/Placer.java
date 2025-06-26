@@ -1,8 +1,13 @@
 package me.raider.blockplacer.placer;
 
+import me.raider.blockplacer.addon.Addon;
+import me.raider.blockplacer.addon.AddonPhase;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.Map;
 
 public interface Placer {
 
@@ -13,8 +18,6 @@ public interface Placer {
     ItemStack getItem();
 
     PlacerMode getMode();
-
-    void setMode(PlacerMode mode);
 
     boolean isInverted();
 
@@ -29,6 +32,8 @@ public interface Placer {
     boolean isBeforeBlocks();
 
     BlockFace getForcedFace();
+
+    Map<AddonPhase, List<Addon<?>>> getAddons();
 
     // boolean hasGravity();
 
